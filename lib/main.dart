@@ -88,7 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. THẺ SỐ DƯ (Đã căn giữa chữ 5.000.000đ & ghép ảnh ví)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -109,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Stack(
                 children: [
-                  // Nội dung chữ căn giữa 100%
+
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -140,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Chấm phân trang căn giữa
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -180,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     right: 0,
                     top: 0,
                     child: Image.asset(
-                      'assets/images/wallet1.png', 
+                      'assets/images/wallet1.png',
                       width: 55,
                       height: 55,
                       fit: BoxFit.contain,
@@ -477,3 +476,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+

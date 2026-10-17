@@ -60,7 +60,11 @@ class DatabaseHelper{
       whereArgs: [id],
     );
   }
-
+  Future<int> updateTransaction(Map<String,dynamic> row) async{
+    final db = await instance.database;
+    int id = row['id'];
+    return await db.update('transactions', row, where: 'id =?', whereArgs: [id]);
+  }
   Future close() async{
     final db = await instance.database;
     db.close();

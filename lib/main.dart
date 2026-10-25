@@ -152,7 +152,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 1. TAB TRANG CHỦ
   Widget _buildHomeTab() {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: DatabaseHelper.instance.getTransactions(),
@@ -368,7 +367,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 2. TAB GIAO DỊCH
   Widget _buildTransactionTab() {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: DatabaseHelper.instance.getTransactions(),
@@ -503,7 +501,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 3. TAB THỐNG KÊ (Chuẩn hình 6 - Màn hình thống kê)[cite: 11]
   Widget _buildStatisticsTab() {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: DatabaseHelper.instance.getTransactions(),
@@ -606,7 +603,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 4. TAB CÁ NHÂN (Chuẩn hình 7 - Màn hình cá nhân)[cite: 11]
   Widget _buildProfileTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -975,7 +971,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// 5. MÀN HÌNH BỘ LỌC (Chuẩn hình 8 - Màn hình lọc dữ liệu)[cite: 11]
 class FilterScreen extends StatefulWidget {
   final String initialType;
   final String initialCategory;
@@ -1154,7 +1149,6 @@ class _FilterScreenState extends State<FilterScreen> {
   }
 }
 
-// 6. MÀN HÌNH THÊM / SỬA GIAO DỊCH
 class AddTransactionScreen extends StatefulWidget {
   final Map<String, dynamic>? transaction;
 

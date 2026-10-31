@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
-import 'screen/login_screen.dart';
-import 'services/auth_service.dart';
-import 'screen/edit_profile_screen.dart';
-import 'screen/change_password_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,156 +17,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
         useMaterial3: true,
       ),
-      home: const AuthGate(),
-    );
-  }
-}
-
-class AuthGate extends StatefulWidget {
-  const AuthGate({super.key});
-
-  @override
-  State<AuthGate> createState() => _AuthGateState();
-}
-
-class _AuthGateState extends State<AuthGate> {
-  final AuthService authService = AuthService();
-
-  bool isChecking = true;
-  bool isLoggedIn = false;
-
-  @override
-  void initState() {
-    super.initState();
-    checkLogin();
-  }
-
-  Future<void> checkLogin() async {
-    try {
-      final token = await authService.getToken();
-
-      if (token != null) {
-        await authService.getProfile();
-      }
-
-      if (!mounted) return;
-
-      setState(() {
-        isLoggedIn = token != null;
-        isChecking = false;
-      });
-    } catch (e) {
-      await authService.logout();
-
-      if (!mounted) return;
-
-      setState(() {
-        isLoggedIn = false;
-        isChecking = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (isChecking) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (isLoggedIn) {
-      return const WelcomeScreen();
-    }
-
-    return LoginScreen(
-      onLoginSuccess: () {
-        setState(() {
-          isLoggedIn = true;
-        });
-      },
-    );
-  }
-}
-
-class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-              Center(
-                child: Image.asset(
-                  'assets/images/wallet.png',
-                  width: 130,
-                  height: 130,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.account_balance_wallet, size: 100, color: Color(0xFF2563EB));
-                  },
-                ),
-              ),
-              const SizedBox(height: 40),
-              const Text(
-                'Expense Manager',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1F36),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Quản lý chi tiêu cá nhân\nđơn giản và hiệu quả',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF8C93A8),
-                  height: 1.5,
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Bắt đầu',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      home: const HomeScreen(),
     );
   }
 }
@@ -183,67 +30,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final AuthService _authService = AuthService();
-  late Future<dynamic> _profileFuture;
-
-  Future<void> _openEditProfile() async {
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const EditProfileScreen(),
-      ),
-    );
-
-    if (!mounted) return;
-
-    if (result == true) {
-      setState(() {
-        _profileFuture = _authService.getProfile();
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cập nhật thông tin thành công')),
-      );
-    }
-  }
-
-  Future<void> _openChangePassword() async {
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const ChangePasswordScreen(),
-      ),
-    );
-
-    if (!mounted) return;
-
-    if (result == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đổi mật khẩu thành công')),
-      );
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _profileFuture = _authService.getProfile();
-  }
-
-  Future<void> _logout() async {
-    await AuthService().logout();
-
-    if (!mounted) return;
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AuthGate(),
-      ),
-          (route) => false,
-    );
-  }
-
   int _selectedIndex = 0;
   String _searchQuery = '';
   String _selectedFilter = 'all';
@@ -724,11 +510,14 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         final listTx = snapshot.data ?? [];
+        double totalIncome = 0;
         double totalExpense = 0;
 
         for (var tx in listTx) {
           final double amt = (tx['amount'] as num).toDouble();
-          if (tx['type'] == 'expense') {
+          if (tx['type'] == 'income') {
+            totalIncome += amt;
+          } else {
             totalExpense += amt;
           }
         }
@@ -836,40 +625,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: FutureBuilder<dynamic>(
-                    future: _profileFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Text('Đang tải thông tin...');
-                      }
-                      if (snapshot.hasError) {
-                        return const Text('Không tải được thông tin tài khoản');
-                      }
-                      final response = snapshot.data;
-                      final Map<String, dynamic> profile = response is Map
-                          ? Map<String, dynamic>.from(response)
-                          : <String, dynamic>{};
-                      final rawUser = profile['user'];
-                      final user = rawUser is Map
-                          ? Map<String, dynamic>.from(rawUser)
-                          : profile;
-                      final name = user['name']?.toString() ?? 'Chưa có tên';
-                      final email = user['email']?.toString() ?? '';
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            name,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            email,
-                            style: const TextStyle(fontSize: 13, color: Colors.grey),
-                          ),
-                        ],
-                      );
-                    },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Nguyễn Văn A',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'nguyenvana@example.com',
+                        style: TextStyle(fontSize: 13, color: Colors.grey),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -884,26 +652,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Column(
               children: [
-                _buildProfileMenuItem(
-                  Icons.person_outline,
-                  'Thông tin cá nhân',
-                  Colors.black87,
-                  onTap: _openEditProfile,
-                ),
+                _buildProfileMenuItem(Icons.person_outline, 'Thông tin cá nhân', Colors.black87),
                 Divider(height: 1, color: Colors.grey.shade100),
-                _buildProfileMenuItem(
-                  Icons.lock_outline,
-                  'Đổi mật khẩu',
-                  Colors.black87,
-                  onTap: _openChangePassword,
-                ),
+                _buildProfileMenuItem(Icons.settings_outlined, 'Cài đặt ngân sách', Colors.black87),
                 Divider(height: 1, color: Colors.grey.shade100),
-                _buildProfileMenuItem(
-                  Icons.logout,
-                  'Đăng xuất',
-                  Colors.redAccent,
-                  onTap: _logout,
-                ),
+                _buildProfileMenuItem(Icons.list_alt_rounded, 'Danh mục chi tiêu', Colors.black87),
+                Divider(height: 1, color: Colors.grey.shade100),
+                _buildProfileMenuItem(Icons.cloud_upload_outlined, 'Sao lưu dữ liệu', Colors.black87),
+                Divider(height: 1, color: Colors.grey.shade100),
+                Divider(height: 1, color: Colors.grey.shade100),
+                _buildProfileMenuItem(Icons.logout, 'Đăng xuất', Colors.redAccent),
               ],
             ),
           ),
@@ -913,12 +671,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildProfileMenuItem(IconData icon, String title, Color color, {VoidCallback? onTap}) {
+  Widget _buildProfileMenuItem(IconData icon, String title, Color color) {
     return ListTile(
       leading: Icon(icon, color: color),
       title: Text(title, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: color)),
       trailing: color == Colors.redAccent ? null : const Icon(Icons.chevron_right, color: Colors.grey),
-      onTap: onTap ?? () {},
+      onTap: () {},
     );
   }
 
@@ -1406,164 +1164,92 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   late TextEditingController noteController;
   String selectedCategory = 'Ăn uống';
 
-  final List<String> expenseCategories = [
-    'Ăn uống', 'Mua sắm', 'Đi lại', 'Học tập', 'Giải trí', 'Khác',
-  ];
-  final List<String> incomeCategories = [
-    'Lương', 'Thưởng', 'Kinh doanh', 'Thu nhập khác',
-  ];
-
   @override
   void initState() {
     super.initState();
     final isEditing = widget.transaction != null;
-    type = isEditing ? widget.transaction!['type'].toString() : 'expense';
-    final categories = type == 'expense' ? expenseCategories : incomeCategories;
-    final savedCategory = isEditing ? widget.transaction!['title']?.toString() : null;
-    selectedCategory = savedCategory != null && categories.contains(savedCategory)
-        ? savedCategory : categories.first;
+    type = isEditing ? widget.transaction!['type'] : 'expense';
     amountController = TextEditingController(
-      text: isEditing ? (widget.transaction!['amount'] as num).toStringAsFixed(0) : '',
+      text: isEditing ? (widget.transaction!['amount'] as double).toStringAsFixed(0) : '',
     );
-    final today = DateTime.now();
     dateController = TextEditingController(
-      text: isEditing ? widget.transaction!['date'].toString()
-          : '${today.day.toString().padLeft(2, '0')}/${today.month.toString().padLeft(2, '0')}/${today.year}',
+      text: isEditing ? widget.transaction!['date'] : '10/10/2026',
     );
     noteController = TextEditingController(text: '');
   }
 
   @override
-  void dispose() {
-    amountController.dispose();
-    dateController.dispose();
-    noteController.dispose();
-    super.dispose();
-  }
-
-  void changeType(String newType) {
-    setState(() {
-      type = newType;
-      selectedCategory = newType == 'expense' ? 'Ăn uống' : 'Lương';
-    });
-  }
-
-  Future<void> saveTransaction() async {
-    final amount = double.tryParse(amountController.text.trim()) ?? 0;
-    if (amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập số tiền hợp lệ')),
-      );
-      return;
-    }
-    try {
-      final transaction = <String, dynamic>{
-        'title': selectedCategory,
-        'amount': amount,
-        'date': dateController.text,
-        'type': type,
-        'category_id': 1,
-      };
-      if (widget.transaction != null) {
-        transaction['id'] = widget.transaction!['id'];
-        await DatabaseHelper.instance.updateTransaction(transaction);
-      } else {
-        await DatabaseHelper.instance.insertTransaction(transaction);
-      }
-      if (!mounted) return;
-      Navigator.pop(context, true);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không thể lưu giao dịch: $e')),
-      );
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final isEditing = widget.transaction != null;
-    final categories = type == 'expense' ? expenseCategories : incomeCategories;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8FAFC),
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(isEditing ? 'Sửa giao dịch' : 'Thêm giao dịch',
-            style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text(
+          isEditing ? 'Sửa giao dịch' : 'Thêm giao dịch',
+          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              Expanded(child: GestureDetector(
-                onTap: () => changeType('expense'),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: type == 'expense' ? const Color(0xFFFF5252) : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: type == 'expense' ? Colors.transparent : Colors.grey.shade300),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => type = 'expense'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: type == 'expense' ? const Color(0xFFFF5252) : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: type == 'expense' ? Colors.transparent : Colors.grey.shade300),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text('Chi tiêu', style: TextStyle(color: type == 'expense' ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: Text('Chi tiêu', style: TextStyle(
-                    color: type == 'expense' ? Colors.white : Colors.black87,
-                    fontWeight: FontWeight.bold,
-                  )),
                 ),
-              )),
-              const SizedBox(width: 12),
-              Expanded(child: GestureDetector(
-                onTap: () => changeType('income'),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: type == 'income' ? const Color(0xFF2563EB) : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: type == 'income' ? Colors.transparent : Colors.grey.shade300),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => type = 'income'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: type == 'income' ? const Color(0xFF2563EB) : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: type == 'income' ? Colors.transparent : Colors.grey.shade300),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text('Thu nhập', style: TextStyle(color: type == 'income' ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: Text('Thu nhập', style: TextStyle(
-                    color: type == 'income' ? Colors.white : Colors.black87,
-                    fontWeight: FontWeight.bold,
-                  )),
                 ),
-              )),
-            ]),
+              ],
+            ),
             const SizedBox(height: 20),
             const Text('Danh mục', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
             const SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: selectedCategory,
-                  isExpanded: true,
-                  icon: const Icon(Icons.keyboard_arrow_down),
-                  items: categories.map((category) => DropdownMenuItem<String>(
-                    value: category,
-                    child: Row(children: [
-                      Icon(type == 'expense' ? Icons.shopping_bag_outlined : Icons.account_balance_wallet_outlined,
-                          size: 18, color: type == 'expense' ? const Color(0xFFFF6B00) : const Color(0xFF2563EB)),
-                      const SizedBox(width: 12),
-                      Text(category),
-                    ]),
-                  )).toList(),
-                  onChanged: (String? value) {
-                    if (value != null) setState(() => selectedCategory = value);
-                  },
-                ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+              child: Row(
+                children: [
+                  const Icon(Icons.shopping_bag, color: Color(0xFFFF6B00), size: 18),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(selectedCategory, style: const TextStyle(fontWeight: FontWeight.w600))),
+                  const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -1571,10 +1257,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             const SizedBox(height: 8),
             TextField(
               controller: amountController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: 'Nhập số tiền', suffixText: 'đ', filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                hintText: 'Nhập số tiền',
+                suffixText: 'đ',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
               ),
             ),
             const SizedBox(height: 16),
@@ -1582,53 +1271,62 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             const SizedBox(height: 8),
             TextField(
               controller: dateController,
-              readOnly: true,
-              onTap: () async {
-                final parts = dateController.text.split('/');
-                DateTime initialDate = DateTime.now();
-                if (parts.length == 3) {
-                  final d = int.tryParse(parts[0]);
-                  final m = int.tryParse(parts[1]);
-                  final y = int.tryParse(parts[2]);
-                  if (d != null && m != null && y != null) {
-                    final parsed = DateTime(y, m, d);
-                    if (parsed.day == d && parsed.month == m && parsed.year == y) initialDate = parsed;
-                  }
-                }
-                final date = await showDatePicker(
-                  context: context, initialDate: initialDate,
-                  firstDate: DateTime(2000), lastDate: DateTime(2100),
-                );
-                if (date != null) {
-                  dateController.text = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-                }
-              },
               decoration: InputDecoration(
-                suffixIcon: const Icon(Icons.calendar_today_outlined, size: 20),
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                suffixIcon: const Icon(Icons.calendar_today_outlined, size: 20, color: Colors.grey),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
               ),
             ),
             const SizedBox(height: 16),
             const Text('Ghi chú', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
             const SizedBox(height: 8),
             TextField(
-              controller: noteController, maxLines: 2,
+              controller: noteController,
+              maxLines: 2,
               decoration: InputDecoration(
-                hintText: 'Nhập ghi chú (tùy chọn)', filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                hintText: 'Nhập ghi chú (tùy chọn)',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
               ),
             ),
             const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: saveTransaction,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563EB), foregroundColor: Colors.white,
+                  backgroundColor: const Color(0xFF2563EB),
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
+                onPressed: () async {
+                  final amount = double.tryParse(amountController.text) ?? 0.0;
+                  if (amount > 0) {
+                    if (isEditing) {
+                      await DatabaseHelper.instance.updateTransaction({
+                        'id': widget.transaction!['id'],
+                        'title': selectedCategory,
+                        'amount': amount,
+                        'date': dateController.text,
+                        'type': type,
+                        'category_id': 1,
+                      });
+                    } else {
+                      await DatabaseHelper.instance.insertTransaction({
+                        'title': selectedCategory,
+                        'amount': amount,
+                        'date': dateController.text,
+                        'type': type,
+                        'category_id': 1,
+                      });
+                    }
+                    if (context.mounted) {
+                      Navigator.pop(context, true);
+                    }
+                  }
+                },
                 child: const Text('Lưu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),

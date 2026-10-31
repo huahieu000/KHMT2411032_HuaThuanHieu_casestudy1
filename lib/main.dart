@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'database_helper.dart';
 
 void main() {
@@ -51,7 +52,10 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Xác nhận xóa'),
         content: const Text('Bạn có chắc chắn muốn xóa giao dịch này không?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
           TextButton(
             onPressed: () async {
               await DatabaseHelper.instance.deleteTransaction(id);
@@ -89,16 +93,24 @@ class _HomeScreenState extends State<HomeScreen> {
           _selectedIndex == 0
               ? 'Quản lý thu chi'
               : (_selectedIndex == 1
-              ? 'Giao dịch'
-              : (_selectedIndex == 2 ? 'Thống kê' : 'Cá nhân')),
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18),
+                    ? 'Giao dịch'
+                    : (_selectedIndex == 2 ? 'Thống kê' : 'Cá nhân')),
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         actions: [
           Stack(
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications_none_rounded, color: Colors.black87, size: 28),
+                icon: const Icon(
+                  Icons.notifications_none_rounded,
+                  color: Colors.black87,
+                  size: 28,
+                ),
                 onPressed: () {},
               ),
               Positioned(
@@ -112,7 +124,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: const Text(
                     '3',
-                    style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -126,7 +142,9 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddTransactionScreen()),
+            MaterialPageRoute(
+              builder: (context) => const AddTransactionScreen(),
+            ),
           );
           if (result == true) {
             setState(() {});
@@ -143,10 +161,22 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.grey.shade500,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Trang chủ'),
-          BottomNavigationBarItem(icon: Icon(Icons.subtitles_outlined), label: 'Giao dịch'),
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart_outline), label: 'Thống kê'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Cá nhân'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_filled),
+            label: 'Trang chủ',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.subtitles_outlined),
+            label: 'Giao dịch',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.pie_chart_outline),
+            label: 'Thống kê',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Cá nhân',
+          ),
         ],
       ),
     );
@@ -182,7 +212,10 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
@@ -216,7 +249,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             SizedBox(width: 6),
-                            Icon(Icons.remove_red_eye_outlined, color: Colors.white70, size: 16),
+                            Icon(
+                              Icons.remove_red_eye_outlined,
+                              color: Colors.white70,
+                              size: 16,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -341,7 +378,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () async {
                         final res = await Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => AddTransactionScreen(transaction: tx)),
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AddTransactionScreen(transaction: tx),
+                          ),
                         );
                         if (res == true) setState(() {});
                       },
@@ -350,11 +390,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: tx['title'],
                         category: isExpense ? 'Chi tiêu' : 'Thu nhập',
                         date: tx['date'],
-                        amount: '${isExpense ? "-" : "+"}${_formatCurrency(amt)} đ',
+                        amount:
+                            '${isExpense ? "-" : "+"}${_formatCurrency(amt)} đ',
                         isExpense: isExpense,
-                        icon: isExpense ? Icons.restaurant : Icons.account_balance_wallet,
-                        iconBgColor: isExpense ? const Color(0xFFFFECE5) : const Color(0xFFDCFCE7),
-                        iconColor: isExpense ? const Color(0xFFFF6B00) : const Color(0xFF16A34A),
+                        icon: isExpense
+                            ? Icons.restaurant
+                            : Icons.account_balance_wallet,
+                        iconBgColor: isExpense
+                            ? const Color(0xFFFFECE5)
+                            : const Color(0xFFDCFCE7),
+                        iconColor: isExpense
+                            ? const Color(0xFFFF6B00)
+                            : const Color(0xFF16A34A),
                       ),
                     );
                   },
@@ -379,7 +426,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (_searchQuery.isNotEmpty) {
           listTx = listTx
-              .where((tx) => tx['title'].toString().toLowerCase().contains(_searchQuery.toLowerCase()))
+              .where(
+                (tx) => tx['title'].toString().toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                ),
+              )
               .toList();
         }
 
@@ -388,7 +439,9 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         if (_selectedCategoryFilter != 'Tất cả danh mục') {
-          listTx = listTx.where((tx) => tx['title'] == _selectedCategoryFilter).toList();
+          listTx = listTx
+              .where((tx) => tx['title'] == _selectedCategoryFilter)
+              .toList();
         }
 
         return Padding(
@@ -403,7 +456,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       onChanged: (val) => setState(() => _searchQuery = val),
                       decoration: InputDecoration(
                         hintText: 'Tìm kiếm giao dịch...',
-                        prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Colors.grey,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
@@ -458,41 +514,60 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 16),
               Text(
                 '${listTx.length} giao dịch',
-                style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 10),
               Expanded(
                 child: listTx.isEmpty
-                    ? const Center(child: Text('Không tìm thấy giao dịch nào.', style: TextStyle(color: Colors.grey)))
+                    ? const Center(
+                        child: Text(
+                          'Không tìm thấy giao dịch nào.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
                     : ListView.builder(
-                  itemCount: listTx.length,
-                  itemBuilder: (context, index) {
-                    final tx = listTx[index];
-                    final bool isExpense = tx['type'] == 'expense';
-                    final double amt = (tx['amount'] as num).toDouble();
+                        itemCount: listTx.length,
+                        itemBuilder: (context, index) {
+                          final tx = listTx[index];
+                          final bool isExpense = tx['type'] == 'expense';
+                          final double amt = (tx['amount'] as num).toDouble();
 
-                    return InkWell(
-                      onTap: () async {
-                        final res = await Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => AddTransactionScreen(transaction: tx)),
-                        );
-                        if (res == true) setState(() {});
-                      },
-                      onLongPress: () => _confirmDelete(tx['id']),
-                      child: _buildTransactionTabItem(
-                        title: tx['title'],
-                        category: isExpense ? 'Ăn uống' : 'Thu nhập',
-                        date: tx['date'],
-                        amount: '${isExpense ? "-" : "+"}${_formatCurrency(amt)} đ',
-                        isExpense: isExpense,
-                        icon: isExpense ? Icons.restaurant : Icons.account_balance_wallet,
-                        iconBgColor: isExpense ? const Color(0xFFFFECE5) : const Color(0xFFDCFCE7),
-                        iconColor: isExpense ? const Color(0xFFFF5252) : const Color(0xFF16A34A),
+                          return InkWell(
+                            onTap: () async {
+                              final res = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      AddTransactionScreen(transaction: tx),
+                                ),
+                              );
+                              if (res == true) setState(() {});
+                            },
+                            onLongPress: () => _confirmDelete(tx['id']),
+                            child: _buildTransactionTabItem(
+                              title: tx['title'],
+                              category: isExpense ? 'Ăn uống' : 'Thu nhập',
+                              date: tx['date'],
+                              amount:
+                                  '${isExpense ? "-" : "+"}${_formatCurrency(amt)} đ',
+                              isExpense: isExpense,
+                              icon: isExpense
+                                  ? Icons.restaurant
+                                  : Icons.account_balance_wallet,
+                              iconBgColor: isExpense
+                                  ? const Color(0xFFFFECE5)
+                                  : const Color(0xFFDCFCE7),
+                              iconColor: isExpense
+                                  ? const Color(0xFFFF5252)
+                                  : const Color(0xFF16A34A),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),
@@ -549,7 +624,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const Text(
                       'Phân bổ chi tiêu',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     SizedBox(
@@ -561,21 +640,35 @@ class _HomeScreenState extends State<HomeScreen> {
                           CircularProgressIndicator(
                             value: 1.0,
                             strokeWidth: 16,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.red.shade100),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.red.shade100,
+                            ),
                           ),
                           CircularProgressIndicator(
                             value: totalExpense > 0 ? 1.0 : 0.0,
                             strokeWidth: 16,
-                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF5252)),
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFFFF5252),
+                            ),
                           ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('Tổng chi tiêu', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                              const Text(
+                                'Tổng chi tiêu',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
                               const SizedBox(height: 4),
                               Text(
                                 '${_formatCurrency(totalExpense)} đ',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
                               ),
                             ],
                           ),
@@ -583,15 +676,40 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _buildStatCategoryItem('Ăn uống', '2.000.000 đ', '40%', const Color(0xFFFF5252)),
+                    _buildStatCategoryItem(
+                      'Ăn uống',
+                      '2.000.000 đ',
+                      '40%',
+                      const Color(0xFFFF5252),
+                    ),
                     const SizedBox(height: 12),
-                    _buildStatCategoryItem('Mua sắm', '1.500.000 đ', '30%', Colors.orange),
+                    _buildStatCategoryItem(
+                      'Mua sắm',
+                      '1.500.000 đ',
+                      '30%',
+                      Colors.orange,
+                    ),
                     const SizedBox(height: 12),
-                    _buildStatCategoryItem('Đi lại', '700.000 đ', '14%', Colors.green),
+                    _buildStatCategoryItem(
+                      'Đi lại',
+                      '700.000 đ',
+                      '14%',
+                      Colors.green,
+                    ),
                     const SizedBox(height: 12),
-                    _buildStatCategoryItem('Học tập', '500.000 đ', '10%', Colors.blue),
+                    _buildStatCategoryItem(
+                      'Học tập',
+                      '500.000 đ',
+                      '10%',
+                      Colors.blue,
+                    ),
                     const SizedBox(height: 12),
-                    _buildStatCategoryItem('Khác', '200.000 đ', '6%', Colors.purple),
+                    _buildStatCategoryItem(
+                      'Khác',
+                      '200.000 đ',
+                      '6%',
+                      Colors.purple,
+                    ),
                   ],
                 ),
               ),
@@ -621,7 +739,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.blue.shade100,
-                  child: const Icon(Icons.person, size: 36, color: Color(0xFF2563EB)),
+                  child: const Icon(
+                    Icons.person,
+                    size: 36,
+                    color: Color(0xFF2563EB),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -630,7 +752,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: const [
                       Text(
                         'Nguyễn Văn A',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
                       SizedBox(height: 4),
                       Text(
@@ -652,16 +778,36 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Column(
               children: [
-                _buildProfileMenuItem(Icons.person_outline, 'Thông tin cá nhân', Colors.black87),
+                _buildProfileMenuItem(
+                  Icons.person_outline,
+                  'Thông tin cá nhân',
+                  Colors.black87,
+                ),
                 Divider(height: 1, color: Colors.grey.shade100),
-                _buildProfileMenuItem(Icons.settings_outlined, 'Cài đặt ngân sách', Colors.black87),
+                _buildProfileMenuItem(
+                  Icons.settings_outlined,
+                  'Cài đặt ngân sách',
+                  Colors.black87,
+                ),
                 Divider(height: 1, color: Colors.grey.shade100),
-                _buildProfileMenuItem(Icons.list_alt_rounded, 'Danh mục chi tiêu', Colors.black87),
+                _buildProfileMenuItem(
+                  Icons.list_alt_rounded,
+                  'Danh mục chi tiêu',
+                  Colors.black87,
+                ),
                 Divider(height: 1, color: Colors.grey.shade100),
-                _buildProfileMenuItem(Icons.cloud_upload_outlined, 'Sao lưu dữ liệu', Colors.black87),
+                _buildProfileMenuItem(
+                  Icons.cloud_upload_outlined,
+                  'Sao lưu dữ liệu',
+                  Colors.black87,
+                ),
                 Divider(height: 1, color: Colors.grey.shade100),
                 Divider(height: 1, color: Colors.grey.shade100),
-                _buildProfileMenuItem(Icons.logout, 'Đăng xuất', Colors.redAccent),
+                _buildProfileMenuItem(
+                  Icons.logout,
+                  'Đăng xuất',
+                  Colors.redAccent,
+                ),
               ],
             ),
           ),
@@ -674,13 +820,27 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildProfileMenuItem(IconData icon, String title, Color color) {
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text(title, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: color)),
-      trailing: color == Colors.redAccent ? null : const Icon(Icons.chevron_right, color: Colors.grey),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          color: color,
+        ),
+      ),
+      trailing: color == Colors.redAccent
+          ? null
+          : const Icon(Icons.chevron_right, color: Colors.grey),
       onTap: () {},
     );
   }
 
-  Widget _buildStatCategoryItem(String title, String amount, String percent, Color color) {
+  Widget _buildStatCategoryItem(
+    String title,
+    String amount,
+    String percent,
+    Color color,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -692,16 +852,30 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
             const SizedBox(width: 8),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+            ),
           ],
         ),
         Row(
           children: [
-            Text(amount, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
+            Text(
+              amount,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.black87,
+              ),
+            ),
             const SizedBox(width: 12),
             SizedBox(
               width: 40,
-              child: Text(percent, textAlign: TextAlign.right, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              child: Text(
+                percent,
+                textAlign: TextAlign.right,
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ),
             ),
           ],
         ),
@@ -941,10 +1115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 4),
                 Text(
                   '$category • $date',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
@@ -957,7 +1128,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
-                  color: isExpense ? const Color(0xFFFF5252) : const Color(0xFF16A34A),
+                  color: isExpense
+                      ? const Color(0xFFFF5252)
+                      : const Color(0xFF16A34A),
                 ),
               ),
               const SizedBox(height: 4),
@@ -1021,7 +1194,11 @@ class _FilterScreenState extends State<FilterScreen> {
         ),
         title: const Text(
           'Bộ lọc',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
       ),
@@ -1030,13 +1207,27 @@ class _FilterScreenState extends State<FilterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Loại giao dịch', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
+            const Text(
+              'Loại giao dịch',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black87,
+              ),
+            ),
             const SizedBox(height: 12),
             _buildCheckboxOption('Tất cả', 'all'),
             _buildCheckboxOption('Thu nhập', 'income'),
             _buildCheckboxOption('Chi tiêu', 'expense'),
             const SizedBox(height: 24),
-            const Text('Danh mục', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
+            const Text(
+              'Danh mục',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black87,
+              ),
+            ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -1062,7 +1253,14 @@ class _FilterScreenState extends State<FilterScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text('Khoảng thời gian', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
+            const Text(
+              'Khoảng thời gian',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black87,
+              ),
+            ),
             const SizedBox(height: 12),
             _buildRadioOption('Hôm nay'),
             _buildRadioOption('7 ngày qua'),
@@ -1082,10 +1280,19 @@ class _FilterScreenState extends State<FilterScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2563EB),
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 0,
                 ),
-                child: const Text('Áp dụng', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Áp dụng',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -1109,14 +1316,19 @@ class _FilterScreenState extends State<FilterScreen> {
               child: Checkbox(
                 value: isChecked,
                 activeColor: const Color(0xFF3B4874),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
                 onChanged: (val) {
                   if (val == true) setState(() => _selectedType = value);
                 },
               ),
             ),
             const SizedBox(width: 12),
-            Text(label, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
           ],
         ),
       ),
@@ -1140,7 +1352,10 @@ class _FilterScreenState extends State<FilterScreen> {
               },
             ),
             const SizedBox(width: 4),
-            Text(label, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
           ],
         ),
       ),
@@ -1164,13 +1379,76 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   late TextEditingController noteController;
   String selectedCategory = 'Ăn uống';
 
+  final List<String> expenseCategories = [
+    'Ăn uống',
+    'Mua sắm',
+    'Đi lại',
+    'Học tập',
+    'Giải trí',
+    'Sức khỏe',
+    'Khác',
+  ];
+
+  final List<String> incomeCategories = [
+    'Lương',
+    'Thưởng',
+    'Kinh doanh',
+    'Đầu tư',
+    'Khác',
+  ];
+  void _showCategoryPicker() {
+    final categories = type == 'expense' ? expenseCategories : incomeCategories;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'Chọn danh mục',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              ...categories.map((category) {
+                return ListTile(
+                  title: Text(category),
+                  trailing: selectedCategory == category
+                      ? const Icon(Icons.check, color: Colors.blue)
+                      : null,
+                  onTap: () {
+                    setState(() {
+                      selectedCategory = category;
+                    });
+                    Navigator.pop(sheetContext);
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     final isEditing = widget.transaction != null;
     type = isEditing ? widget.transaction!['type'] : 'expense';
+    selectedCategory = isEditing
+        ? widget.transaction!['title'].toString()
+        : (type == 'expense' ? 'Ăn uống' : 'Lương');
     amountController = TextEditingController(
-      text: isEditing ? (widget.transaction!['amount'] as double).toStringAsFixed(0) : '',
+      text: isEditing
+          ? (widget.transaction!['amount'] as double).toStringAsFixed(0)
+          : '',
     );
     dateController = TextEditingController(
       text: isEditing ? widget.transaction!['date'] : '10/10/2026',
@@ -1193,7 +1471,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         ),
         title: Text(
           isEditing ? 'Sửa giao dịch' : 'Thêm giao dịch',
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
       ),
@@ -1210,12 +1492,26 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: type == 'expense' ? const Color(0xFFFF5252) : Colors.white,
+                        color: type == 'expense'
+                            ? const Color(0xFFFF5252)
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: type == 'expense' ? Colors.transparent : Colors.grey.shade300),
+                        border: Border.all(
+                          color: type == 'expense'
+                              ? Colors.transparent
+                              : Colors.grey.shade300,
+                        ),
                       ),
                       alignment: Alignment.center,
-                      child: Text('Chi tiêu', style: TextStyle(color: type == 'expense' ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        'Chi tiêu',
+                        style: TextStyle(
+                          color: type == 'expense'
+                              ? Colors.white
+                              : Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -1226,34 +1522,80 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: type == 'income' ? const Color(0xFF2563EB) : Colors.white,
+                        color: type == 'income'
+                            ? const Color(0xFF2563EB)
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: type == 'income' ? Colors.transparent : Colors.grey.shade300),
+                        border: Border.all(
+                          color: type == 'income'
+                              ? Colors.transparent
+                              : Colors.grey.shade300,
+                        ),
                       ),
                       alignment: Alignment.center,
-                      child: Text('Thu nhập', style: TextStyle(color: type == 'income' ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        'Thu nhập',
+                        style: TextStyle(
+                          color: type == 'income'
+                              ? Colors.white
+                              : Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            const Text('Danh mục', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
+            const Text(
+              'Danh mục',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black54,
+              ),
+            ),
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
-              child: Row(
-                children: [
-                  const Icon(Icons.shopping_bag, color: Color(0xFFFF6B00), size: 18),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(selectedCategory, style: const TextStyle(fontWeight: FontWeight.w600))),
-                  const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-                ],
+            InkWell(
+              onTap: _showCategoryPicker,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.shopping_bag,
+                      color: Color(0xFFFF6B00),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        selectedCategory,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            const Text('Số tiền', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
+            const Text(
+              'Số tiền',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black54,
+              ),
+            ),
             const SizedBox(height: 8),
             TextField(
               controller: amountController,
@@ -1263,23 +1605,45 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 suffixText: 'đ',
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade200),
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            const Text('Ngày giao dịch', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
+            const Text(
+              'Ngày giao dịch',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black54,
+              ),
+            ),
             const SizedBox(height: 8),
             TextField(
               controller: dateController,
               decoration: InputDecoration(
-                suffixIcon: const Icon(Icons.calendar_today_outlined, size: 20, color: Colors.grey),
+                suffixIcon: const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 20,
+                  color: Colors.grey,
+                ),
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade200),
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            const Text('Ghi chú', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
+            const Text(
+              'Ghi chú',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black54,
+              ),
+            ),
             const SizedBox(height: 8),
             TextField(
               controller: noteController,
@@ -1288,7 +1652,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 hintText: 'Nhập ghi chú (tùy chọn)',
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade200),
+                ),
               ),
             ),
             const SizedBox(height: 30),
@@ -1299,7 +1666,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   backgroundColor: const Color(0xFF2563EB),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onPressed: () async {
                   final amount = double.tryParse(amountController.text) ?? 0.0;
@@ -1327,7 +1696,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     }
                   }
                 },
-                child: const Text('Lưu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Lưu',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ],

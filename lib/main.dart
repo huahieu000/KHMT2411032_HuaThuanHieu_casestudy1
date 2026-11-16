@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:fl_chart/fl_chart.dart';
 import 'database_helper.dart';
 
 void main() {
@@ -18,7 +18,81 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: const WelcomeScreen(),
+    );
+  }
+}
+
+class WelcomeScreen extends StatelessWidget {
+  const WelcomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              const Spacer(),
+              const Icon(
+                Icons.account_balance_wallet,
+                size: 100,
+                color: Color(0xFF2563EB),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Expense Manager',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Quản lý chi tiêu cá nhân\nđơn giản và hiệu quả',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey,
+                  height: 1.5,
+                ),
+              ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Bắt đầu',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -37,7 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedStatFilter = 'month';
   String _selectedCategoryFilter = 'Tất cả danh mục';
   String _selectedTimeRange = 'Tháng này';
-
+  DateTime? _customStartDate;
+  DateTime? _customEndDate;
   String _formatCurrency(double amount) {
     final int value = amount.round();
     final String str = value.toString();
@@ -85,10 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8FAFC),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black87),
-          onPressed: () {},
-        ),
+        automaticallyImplyLeading: false,
         title: Text(
           _selectedIndex == 0
               ? 'Quản lý thu chi'
@@ -102,6 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
+          if (false)
           Stack(
             alignment: Alignment.center,
             children: [
@@ -181,7 +254,79 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+  IconData _getCategoryIcon(String title, String type) {
+    switch (title) {
+      case 'Ăn uống':
+        return Icons.restaurant;
+      case 'Mua sắm':
+        return Icons.shopping_bag;
+      case 'Giải trí':
+        return Icons.movie;
+      case 'Đi lại':
+        return Icons.directions_bus;
+      case 'Học tập':
+        return Icons.school;
+      case 'Lương':
+        return Icons.account_balance_wallet;
+      case 'Thưởng':
+        return Icons.card_giftcard;
+      case 'Kinh doanh':
+      case 'kinh do':
+        return Icons.attach_money;
+      default:
+        return type == 'expense'
+            ? Icons.money_off
+            : Icons.account_balance_wallet;
+    }
+  }
 
+  Color _getCategoryIconBgColor(String title, String type) {
+    switch (title) {
+      case 'Ăn uống':
+        return const Color(0xFFFFECE5);
+      case 'Mua sắm':
+        return const Color(0xFFEDE9FE);
+      case 'Giải trí':
+        return const Color(0xFFFFF1F2);
+      case 'Đi lại':
+        return const Color(0xFFE0F2FE);
+      case 'Học tập':
+        return const Color(0xFFDBEAFE);
+      case 'Lương':
+      case 'Thưởng':
+      case 'Kinh doanh':
+      case 'kinh do':
+        return const Color(0xFFDCFCE7);
+      default:
+        return type == 'expense'
+            ? const Color(0xFFFFECE5)
+            : const Color(0xFFDCFCE7);
+    }
+  }
+
+  Color _getCategoryIconColor(String title, String type) {
+    switch (title) {
+      case 'Ăn uống':
+        return const Color(0xFFFF6B00);
+      case 'Mua sắm':
+        return const Color(0xFF7C3AED);
+      case 'Giải trí':
+        return const Color(0xFFE11D48);
+      case 'Đi lại':
+        return const Color(0xFF0284C7);
+      case 'Học tập':
+        return const Color(0xFF2563EB);
+      case 'Lương':
+      case 'Thưởng':
+      case 'Kinh doanh':
+      case 'kinh do':
+        return const Color(0xFF16A34A);
+      default:
+        return type == 'expense'
+            ? const Color(0xFFFF5252)
+            : const Color(0xFF16A34A);
+    }
+  }
   Widget _buildHomeTab() {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: DatabaseHelper.instance.getTransactions(),
@@ -191,8 +336,10 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         final listTx = snapshot.data ?? [];
+
         double totalIncome = 0;
         double totalExpense = 0;
+
 
         for (var tx in listTx) {
           final double amt = (tx['amount'] as num).toDouble();
@@ -393,15 +540,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         amount:
                             '${isExpense ? "-" : "+"}${_formatCurrency(amt)} đ',
                         isExpense: isExpense,
-                        icon: isExpense
-                            ? Icons.restaurant
-                            : Icons.account_balance_wallet,
-                        iconBgColor: isExpense
-                            ? const Color(0xFFFFECE5)
-                            : const Color(0xFFDCFCE7),
-                        iconColor: isExpense
-                            ? const Color(0xFFFF6B00)
-                            : const Color(0xFF16A34A),
+                        icon: _getCategoryIcon(
+                          tx['title']?.toString() ?? 'Khác',
+                          tx['type']?.toString() ?? 'expense',
+                        ),
+                        iconBgColor: _getCategoryIconBgColor(
+                          tx['title']?.toString() ?? 'Khác',
+                          tx['type']?.toString() ?? 'expense',
+                        ),
+                        iconColor: _getCategoryIconColor(
+                          tx['title']?.toString() ?? 'Khác',
+                          tx['type']?.toString() ?? 'expense',
+                        ),
                       ),
                     );
                   },
@@ -444,6 +594,78 @@ class _HomeScreenState extends State<HomeScreen> {
               .toList();
         }
 
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+
+        listTx = listTx.where((tx) {
+          final dateText = tx['date']?.toString() ?? '';
+          DateTime? transactionDate;
+
+          final parts = dateText.split('/');
+
+          if (parts.length == 3) {
+            final day = int.tryParse(parts[0]);
+            final month = int.tryParse(parts[1]);
+            final year = int.tryParse(parts[2]);
+
+            if (day != null && month != null && year != null) {
+              final parsed = DateTime(year, month, day);
+              if (parsed.year == year &&
+                  parsed.month == month &&
+                  parsed.day == day) {
+                transactionDate = parsed;
+              }
+            }
+          } else {
+            transactionDate = DateTime.tryParse(dateText);
+          }
+
+          if (transactionDate == null) return false;
+
+          final date = DateTime(
+            transactionDate.year,
+            transactionDate.month,
+            transactionDate.day,
+          );
+
+          if (_selectedTimeRange == 'Hôm nay') {
+            return date == today;
+          }
+
+          if (_selectedTimeRange == '7 ngày qua') {
+            final start = today.subtract(const Duration(days: 6));
+            return !date.isBefore(start) && !date.isAfter(today);
+          }
+
+          if (_selectedTimeRange == 'Tháng này') {
+            return date.year == now.year && date.month == now.month;
+          }
+
+
+          if (_selectedTimeRange == 'Tùy chỉnh') {
+            // Chưa chọn đủ hai ngày thì chưa áp dụng giới hạn thời gian.
+            if (_customStartDate == null || _customEndDate == null) {
+              return true;
+            }
+
+            final start = DateTime(
+              _customStartDate!.year,
+              _customStartDate!.month,
+              _customStartDate!.day,
+            );
+
+            final end = DateTime(
+              _customEndDate!.year,
+              _customEndDate!.month,
+              _customEndDate!.day,
+            );
+
+            // Chỉ lấy giao dịch từ ngày bắt đầu đến ngày kết thúc.
+            return !date.isBefore(start) && !date.isAfter(end);
+          }
+
+          return true;
+        }).toList();
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Column(
@@ -489,11 +711,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         );
+
                         if (result != null) {
                           setState(() {
                             _selectedFilter = result['type'];
                             _selectedCategoryFilter = result['category'];
                             _selectedTimeRange = result['timeRange'];
+
+                            _customStartDate = result['startDate'] as DateTime?;
+                            _customEndDate = result['endDate'] as DateTime?;
                           });
                         }
                       },
@@ -555,15 +781,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               amount:
                                   '${isExpense ? "-" : "+"}${_formatCurrency(amt)} đ',
                               isExpense: isExpense,
-                              icon: isExpense
-                                  ? Icons.restaurant
-                                  : Icons.account_balance_wallet,
-                              iconBgColor: isExpense
-                                  ? const Color(0xFFFFECE5)
-                                  : const Color(0xFFDCFCE7),
-                              iconColor: isExpense
-                                  ? const Color(0xFFFF5252)
-                                  : const Color(0xFF16A34A),
+                              icon: _getCategoryIcon(
+                                tx['title']?.toString() ?? 'Khác',
+                                tx['type']?.toString() ?? 'expense',
+                              ),
+                              iconBgColor: _getCategoryIconBgColor(
+                                tx['title']?.toString() ?? 'Khác',
+                                tx['type']?.toString() ?? 'expense',
+                              ),
+                              iconColor: _getCategoryIconColor(
+                                tx['title']?.toString() ?? 'Khác',
+                                tx['type']?.toString() ?? 'expense',
+                              ),
                             ),
                           );
                         },
@@ -585,17 +814,73 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         final listTx = snapshot.data ?? [];
+
+        final now = DateTime.now();
+
+        final filteredTx = listTx.where((tx) {
+          final dateText = tx['date']?.toString() ?? '';
+          DateTime? transactionDate;
+
+          final parts = dateText.split('/');
+
+          if (parts.length == 3) {
+            final day = int.tryParse(parts[0]);
+            final month = int.tryParse(parts[1]);
+            final year = int.tryParse(parts[2]);
+
+            if (day != null && month != null && year != null) {
+              final parsed = DateTime(year, month, day);
+
+              if (parsed.day == day &&
+                  parsed.month == month &&
+                  parsed.year == year) {
+                transactionDate = parsed;
+              }
+            }
+          } else {
+            transactionDate = DateTime.tryParse(dateText);
+          }
+
+          if (transactionDate == null) return false;
+
+          if (_selectedStatFilter == 'month') {
+            return transactionDate.year == now.year &&
+                transactionDate.month == now.month;
+          }
+
+          if (_selectedStatFilter == 'last_month') {
+            final lastMonth = DateTime(now.year, now.month - 1);
+            return transactionDate.year == lastMonth.year &&
+                transactionDate.month == lastMonth.month;
+          }
+
+          if (_selectedStatFilter == 'year') {
+            return transactionDate.year == now.year;
+          }
+
+          return true;
+        }).toList();
+
         double totalIncome = 0;
         double totalExpense = 0;
+        final Map<String, double> categoryTotals = {};
 
-        for (var tx in listTx) {
+
+        for (var tx in filteredTx) {
           final double amt = (tx['amount'] as num).toDouble();
+
           if (tx['type'] == 'income') {
             totalIncome += amt;
           } else {
             totalExpense += amt;
+
+            final category = tx['title']?.toString() ?? 'Khác';
+
+            categoryTotals[category] =
+                (categoryTotals[category] ?? 0) + amt;
           }
         }
+
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -637,18 +922,39 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          CircularProgressIndicator(
-                            value: 1.0,
-                            strokeWidth: 16,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.red.shade100,
-                            ),
-                          ),
-                          CircularProgressIndicator(
-                            value: totalExpense > 0 ? 1.0 : 0.0,
-                            strokeWidth: 16,
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color(0xFFFF5252),
+
+                          Positioned.fill(
+                            child: PieChart(
+                              PieChartData(
+                                sectionsSpace: 2,
+                                centerSpaceRadius: 55,
+                                startDegreeOffset: -90,
+                                sections: categoryTotals.isEmpty
+                                    ? [
+                                  PieChartSectionData(
+                                    value: 1,
+                                    color: Colors.grey.shade200,
+                                    radius: 18,
+                                    showTitle: false,
+                                  ),
+                                ]
+                                    : categoryTotals.entries.toList().asMap().entries.map((item) {
+                                  final colors = [
+                                    const Color(0xFFFF5252),
+                                    Colors.orange,
+                                    Colors.green,
+                                    Colors.blue,
+                                    Colors.purple,
+                                  ];
+
+                                  return PieChartSectionData(
+                                    value: item.value.value,
+                                    color: colors[item.key % colors.length],
+                                    radius: 18,
+                                    showTitle: false,
+                                  );
+                                }).toList(),
+                              ),
                             ),
                           ),
                           Column(
@@ -675,41 +981,38 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    _buildStatCategoryItem(
-                      'Ăn uống',
-                      '2.000.000 đ',
-                      '40%',
-                      const Color(0xFFFF5252),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildStatCategoryItem(
-                      'Mua sắm',
-                      '1.500.000 đ',
-                      '30%',
-                      Colors.orange,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildStatCategoryItem(
-                      'Đi lại',
-                      '700.000 đ',
-                      '14%',
-                      Colors.green,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildStatCategoryItem(
-                      'Học tập',
-                      '500.000 đ',
-                      '10%',
-                      Colors.blue,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildStatCategoryItem(
-                      'Khác',
-                      '200.000 đ',
-                      '6%',
-                      Colors.purple,
-                    ),
+
+                    if (categoryTotals.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('Chưa có dữ liệu chi tiêu'),
+                      )
+                    else
+                      ...categoryTotals.entries.map((entry) {
+                        final percent = totalExpense > 0
+                            ? (entry.value / totalExpense * 100)
+                            : 0.0;
+
+                        final colors = [
+                          const Color(0xFFFF5252),
+                          Colors.orange,
+                          Colors.green,
+                          Colors.blue,
+                          Colors.purple,
+                        ];
+
+                        final index = categoryTotals.keys.toList().indexOf(entry.key);
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _buildStatCategoryItem(
+                            entry.key,
+                            '${_formatCurrency(entry.value)} đ',
+                            '${percent.toStringAsFixed(1)}%',
+                            colors[index % colors.length],
+                          ),
+                        );
+                      }),
                   ],
                 ),
               ),
@@ -870,11 +1173,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(width: 12),
             SizedBox(
-              width: 40,
+              width: 55,
               child: Text(
                 percent,
+                maxLines: 1,
+                softWrap: false,
                 textAlign: TextAlign.right,
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12,
+                ),
               ),
             ),
           ],
@@ -1164,6 +1472,9 @@ class _FilterScreenState extends State<FilterScreen> {
   late String _selectedCategory;
   late String _selectedTimeRange;
 
+  DateTime? _startDate;
+  DateTime? _endDate;
+
   final List<String> _categories = [
     'Tất cả danh mục',
     'Ăn uống',
@@ -1266,6 +1577,56 @@ class _FilterScreenState extends State<FilterScreen> {
             _buildRadioOption('7 ngày qua'),
             _buildRadioOption('Tháng này'),
             _buildRadioOption('Tùy chỉnh'),
+
+            if (_selectedTimeRange == 'Tùy chỉnh')
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: _startDate ?? DateTime.now(),
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null) {
+                            setState(() => _startDate = picked);
+                          }
+                        },
+                        child: Text(
+                          _startDate == null
+                              ? 'Từ ngày'
+                              : '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: _endDate ?? _startDate ?? DateTime.now(),
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null) {
+                            setState(() => _endDate = picked);
+                          }
+                        },
+                        child: Text(
+                          _endDate == null
+                              ? 'Đến ngày'
+                              : '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             const Spacer(),
             SizedBox(
               width: double.infinity,
@@ -1275,6 +1636,8 @@ class _FilterScreenState extends State<FilterScreen> {
                     'type': _selectedType,
                     'category': _selectedCategory,
                     'timeRange': _selectedTimeRange,
+                    'startDate': _startDate,
+                    'endDate': _endDate,
                   });
                 },
                 style: ElevatedButton.styleFrom(
@@ -1453,7 +1816,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     dateController = TextEditingController(
       text: isEditing ? widget.transaction!['date'] : '10/10/2026',
     );
-    noteController = TextEditingController(text: '');
+    noteController = TextEditingController(
+      text: isEditing
+          ? (widget.transaction!['note']?.toString() ?? '')
+          : '',
+    );
   }
 
   @override
@@ -1488,7 +1855,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => setState(() => type = 'expense'),
+                    onTap: () {
+                      setState(() {
+                        type = 'expense';
+                        selectedCategory = 'Ăn uống';
+                      });
+                    },
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
@@ -1518,7 +1890,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => setState(() => type = 'income'),
+                    onTap: () {
+                      setState(() {
+                        type = 'income';
+                        selectedCategory = 'Lương';
+                      });
+                    },
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
@@ -1622,6 +1999,42 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             const SizedBox(height: 8),
             TextField(
               controller: dateController,
+
+              readOnly: true,
+              onTap: () async {
+                final parts = dateController.text.split('/');
+                DateTime initialDate = DateTime.now();
+
+                if (parts.length == 3) {
+                  final day = int.tryParse(parts[0]);
+                  final month = int.tryParse(parts[1]);
+                  final year = int.tryParse(parts[2]);
+
+                  if (day != null && month != null && year != null) {
+                    final parsed = DateTime(year, month, day);
+
+                    if (parsed.day == day &&
+                        parsed.month == month &&
+                        parsed.year == year) {
+                      initialDate = parsed;
+                    }
+                  }
+                }
+
+                final selectedDate = await showDatePicker(
+                  context: context,
+                  initialDate: initialDate,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2100),
+                );
+
+                if (selectedDate != null) {
+                  dateController.text =
+                  '${selectedDate.day.toString().padLeft(2, '0')}/'
+                      '${selectedDate.month.toString().padLeft(2, '0')}/'
+                      '${selectedDate.year}';
+                }
+              },
               decoration: InputDecoration(
                 suffixIcon: const Icon(
                   Icons.calendar_today_outlined,
@@ -1670,30 +2083,50 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
+
                 onPressed: () async {
-                  final amount = double.tryParse(amountController.text) ?? 0.0;
-                  if (amount > 0) {
-                    if (isEditing) {
-                      await DatabaseHelper.instance.updateTransaction({
-                        'id': widget.transaction!['id'],
-                        'title': selectedCategory,
-                        'amount': amount,
-                        'date': dateController.text,
-                        'type': type,
-                        'category_id': 1,
-                      });
-                    } else {
-                      await DatabaseHelper.instance.insertTransaction({
-                        'title': selectedCategory,
-                        'amount': amount,
-                        'date': dateController.text,
-                        'type': type,
-                        'category_id': 1,
-                      });
-                    }
-                    if (context.mounted) {
-                      Navigator.pop(context, true);
-                    }
+                  final amount = double.tryParse(amountController.text.trim()) ?? 0.0;
+
+                  if (amount <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Vui lòng nhập số tiền hợp lệ'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  // Lấy đúng ID danh mục đang chọn
+                  final categoryId =
+                  await DatabaseHelper.instance.getOrCreateCategoryId(
+                    name: selectedCategory,
+                    type: type,
+                  );
+
+                  // Chuẩn bị dữ liệu giao dịch
+                  final transactionData = <String, dynamic>{
+                    'title': selectedCategory,
+                    'amount': amount,
+                    'date': dateController.text,
+                    'type': type,
+                    'category_id': categoryId,
+                    'note': noteController.text.trim(),
+                  };
+
+                  if (isEditing) {
+                    transactionData['id'] = widget.transaction!['id'];
+
+                    await DatabaseHelper.instance.updateTransaction(
+                      transactionData,
+                    );
+                  } else {
+                    await DatabaseHelper.instance.insertTransaction(
+                      transactionData,
+                    );
+                  }
+
+                  if (context.mounted) {
+                    Navigator.pop(context, true);
                   }
                 },
                 child: const Text(
